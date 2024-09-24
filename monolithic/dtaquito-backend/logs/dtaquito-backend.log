@@ -1,0 +1,29 @@
+2024-09-06T05:45:18.214-05:00  WARN 19564 --- [dtaquito-backend] [main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/C:/Users/admin/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/C:/Users/admin/.m2/repository/org/json/json/20210307/json-20210307.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2024-09-06T05:45:18.239-05:00  INFO 19564 --- [dtaquito-backend] [main] c.d.d.DtaquitoBackendApplicationTests    : Starting DtaquitoBackendApplicationTests using Java 21.0.3 with PID 19564 (started by admin in C:\Users\admin\Desktop\dtaquito-backend\dtaquito-backend)
+2024-09-06T05:45:18.241-05:00  INFO 19564 --- [dtaquito-backend] [main] c.d.d.DtaquitoBackendApplicationTests    : No active profile set, falling back to 1 default profile: "default"
+2024-09-06T05:45:19.829-05:00  INFO 19564 --- [dtaquito-backend] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-09-06T05:45:19.969-05:00  INFO 19564 --- [dtaquito-backend] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 130 ms. Found 8 JPA repository interfaces.
+2024-09-06T05:45:20.804-05:00  INFO 19564 --- [dtaquito-backend] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-09-06T05:45:20.874-05:00  INFO 19564 --- [dtaquito-backend] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.8.Final
+2024-09-06T05:45:20.917-05:00  INFO 19564 --- [dtaquito-backend] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-09-06T05:45:21.251-05:00  INFO 19564 --- [dtaquito-backend] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-09-06T05:45:21.282-05:00  INFO 19564 --- [dtaquito-backend] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-09-06T05:45:21.626-05:00  INFO 19564 --- [dtaquito-backend] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@163df259
+2024-09-06T05:45:21.628-05:00  INFO 19564 --- [dtaquito-backend] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-09-06T05:45:22.732-05:00  INFO 19564 --- [dtaquito-backend] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-09-06T05:45:22.819-05:00  INFO 19564 --- [dtaquito-backend] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-09-06T05:45:23.884-05:00  INFO 19564 --- [dtaquito-backend] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@252459b2, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5128efc, org.springframework.security.web.context.SecurityContextHolderFilter@1f7653ae, org.springframework.security.web.header.HeaderWriterFilter@7f746160, org.springframework.web.filter.CorsFilter@438a2337, org.springframework.security.web.authentication.logout.LogoutFilter@7597ae32, com.dtaquito_backend.dtaquito_backend.iam.infrastructure.authorization.sfs.pipeline.BearerAuthorizationRequestFilter@6b3a1151, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6bd5aa8b, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3af17313, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@593d5f39, org.springframework.security.web.session.SessionManagementFilter@2c3a2935, org.springframework.security.web.access.ExceptionTranslationFilter@466fd19b, org.springframework.security.web.access.intercept.AuthorizationFilter@597f2d3f]
+2024-09-06T05:45:24.386-05:00  INFO 19564 --- [dtaquito-backend] [main] c.d.d.DtaquitoBackendApplicationTests    : Started DtaquitoBackendApplicationTests in 6.413 seconds (process running for 7.341)
+2024-09-06T05:45:24.389-05:00  INFO 19564 --- [dtaquito-backend] [main] d.d.i.a.i.e.ApplicationReadyEventHandler : Starting to verify if roles seeding is needed for dtaquito-backend at 2024-09-06 05:45:24.389
+2024-09-06T05:45:24.393-05:00  INFO 19564 --- [dtaquito-backend] [main] d.d.i.a.i.e.ApplicationReadyEventHandler : Roles seeding verification finished for dtaquito-backend at 2024-09-06 05:45:24.393
+2024-09-06T05:45:24.829-05:00  INFO 19564 --- [dtaquito-backend] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-09-06T05:45:24.831-05:00  INFO 19564 --- [dtaquito-backend] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-09-06T05:45:24.838-05:00  INFO 19564 --- [dtaquito-backend] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
