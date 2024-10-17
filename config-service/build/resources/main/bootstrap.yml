@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+            searchLocations: file:///C:/Users/Sebastian/Desktop/config-data
+  security:
+    user:
+      name: root
+      password: s3cr3t
+
