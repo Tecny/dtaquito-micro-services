@@ -1,0 +1,26 @@
+# Application Configuration
+server:
+  port: ${PORT:${SERVER_PORT:0}}
+  error:
+    include-message: always
+    include-binding-errors: always
+  jmx:
+    enabled: false
+# Eureka Client
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8099/eureka/
+
+resilience4j.circuitbreaker:
+  instances:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: TIME_BASED
+      minimumNumberOfCalls: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
