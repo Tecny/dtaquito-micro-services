@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+#  profiles:
+#    active: native
+#  cloud:
+#    config:
+#      server:
+#        native:
+#            searchLocations: file:///C:/Users/Sebastian/Desktop/config-data
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Tecny/dtaquito-micro-services/tree/develop
+          searchPaths: config-data
+          username: ${GIT_USER}
+          password: ${GIT_PASSWORD}
+          default-label: "develop"
+  security:
+    user:
+      name: root
+      password: s3cr3t
+
