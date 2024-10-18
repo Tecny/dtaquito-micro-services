@@ -4,6 +4,7 @@ import com.dtaquito_micro_services.payments.config.CustomUserDetails;
 import com.dtaquito_micro_services.payments.config.impl.TokenCacheService;
 import com.dtaquito_micro_services.payments.payments.application.internal.commandservices.PayPalPaymentServiceImpl;
 import com.dtaquito_micro_services.payments.config.BearerTokenService;
+import com.dtaquito_micro_services.payments.payments.application.internal.commandservices.PaymentTimestampService;
 import com.dtaquito_micro_services.payments.payments.client.SuscriptionClient;
 import com.dtaquito_micro_services.payments.payments.client.UserClient;
 import com.dtaquito_micro_services.payments.payments.domain.model.aggregates.Payments;
@@ -34,6 +35,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +56,8 @@ public class PaymentsController {
 
     @Autowired
     private DiscoveryClient discoveryClient;
+    @Autowired
+    private PaymentTimestampService paymentTimestampService;
 
     public PaymentsController(PayPalPaymentServiceImpl payPalPaymentService, BearerTokenService tokenService, SuscriptionClient suscriptionClient, PaymentsRepository paymentsRepository, UserClient userClient, TokenCacheService tokenCacheService) {
         this.payPalPaymentService = payPalPaymentService;
@@ -81,8 +85,8 @@ public class PaymentsController {
         logger.debug("User ID from token: {}", userId);
 
         List<ServiceInstance> instances = discoveryClient.getInstances("payment-service");
-        String cancelUrl = instances.get(0).getUri().toString() + "/api/v1/payments/upgrade/cancel";
-        String successUrl = instances.get(0).getUri().toString() + "/api/v1/payments/upgrade/success";
+        String cancelUrl = instances.get(0).getUri().toString() + "/api/v1/payments/create/cancel";
+        String successUrl = instances.get(0).getUri().toString() + "/api/v1/payments/create/success";
         try {
             Payment payment = payPalPaymentService.createPayment(
                     amount.doubleValue(), "USD", "paypal", "sale", userId, "Depósito de dinero", cancelUrl, successUrl);
@@ -97,6 +101,8 @@ public class PaymentsController {
 
             // Store the token in the cache
             tokenCacheService.storeToken(payment.getId(), token);
+            paymentTimestampService.storeTimestamp(payment.getId());
+
 
             for (Links links : payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
@@ -150,6 +156,8 @@ public class PaymentsController {
 
             // Store the token in the cache
             tokenCacheService.storeToken(payment.getId(), token);
+            paymentTimestampService.storeTimestamp(payment.getId());
+
 
             for (Links links : payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
@@ -182,6 +190,14 @@ public class PaymentsController {
                 Payments transaction = paymentsRepository.findByTransactionId(paymentId)
                         .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
 
+                // Check if the payment is within the 20-second window
+                LocalDateTime timestamp = paymentTimestampService.getTimestamp(paymentId);
+                if (timestamp == null || timestamp.isBefore(LocalDateTime.now().minusSeconds(20))) {
+                    log.error("Payment link has expired");
+                    payPalPaymentService.refundPayment(paymentId);
+                    return "upgradeError";
+                }
+
                 // Retrieve the token from the cache
                 String token = tokenCacheService.getToken(paymentId);
                 if (token == null || !tokenService.validateToken(token)) {
@@ -200,6 +216,7 @@ public class PaymentsController {
 
                 // Remove the token from the cache
                 tokenCacheService.removeToken(paymentId);
+                paymentTimestampService.removeTimestamp(paymentId);
 
                 log.info("Upgrade approved and userId {} set in Payments table", user.getId());
                 return "upgradeSuccess";
@@ -212,6 +229,67 @@ public class PaymentsController {
             log.error("Error processing upgrade success callback", e);
             payPalPaymentService.refundPayment(paymentId);
             return "upgradeError";
+        }
+    }
+
+    @GetMapping("/create/cancel")
+    public String createCancel() {
+        log.info("Create payment cancel callback received");
+        return "createCancel";
+    }
+
+
+    @GetMapping("/create/success")
+    public String createSuccess(@RequestParam("paymentId") String paymentId,
+                                 @RequestParam("PayerID") String payerId) {
+        log.info("Upgrade success callback received with paymentId: {} and PayerID: {}", paymentId, payerId);
+        try {
+            Payment payment = payPalPaymentService.executePayment(paymentId, payerId);
+            log.debug("Payment details: {}", payment);
+
+            if (payment.getState().equals("approved")) {
+                Payments transaction = paymentsRepository.findByTransactionId(paymentId)
+                        .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+
+                // Check if the payment is within the 20-second window
+                LocalDateTime timestamp = paymentTimestampService.getTimestamp(paymentId);
+                if (timestamp == null || timestamp.isBefore(LocalDateTime.now().minusSeconds(20))) {
+                    log.error("Payment link has expired");
+                    payPalPaymentService.refundPayment(paymentId);
+                    return "createError";
+                }
+
+                // Retrieve the token from the cache
+                String token = tokenCacheService.getToken(paymentId);
+                if (token == null || !tokenService.validateToken(token)) {
+                    log.error("Token is not valid");
+                    return "createError";
+                }
+
+                ResponseEntity<User> userResponse = userClient.getUserById(Long.valueOf(transaction.getUserId()), token);
+                User user = userResponse.getBody();
+                if (user == null) {
+                    throw new IllegalArgumentException("User not found");
+                }
+
+                transaction.setPaymentStatus("APPROVED");
+                paymentsRepository.save(transaction);
+
+                // Remove the token from the cache
+                tokenCacheService.removeToken(paymentId);
+                paymentTimestampService.removeTimestamp(paymentId);
+
+                log.info("Upgrade approved and userId {} set in Payments table", user.getId());
+                return "createSuccess";
+            } else {
+                log.error("Payment state is not approved: {}", payment.getState());
+                payPalPaymentService.refundPayment(paymentId);
+                return "createError";
+            }
+        } catch (Exception e) {
+            log.error("Error processing upgrade success callback", e);
+            payPalPaymentService.refundPayment(paymentId);
+            return "createError";
         }
     }
 
