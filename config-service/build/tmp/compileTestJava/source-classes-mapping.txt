@@ -1,2 +1,0 @@
-pe/edu/upc/config/ConfigServiceApplicationTests.java
- pe.edu.upc.config.ConfigServiceApplicationTests

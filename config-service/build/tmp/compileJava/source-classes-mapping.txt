@@ -1,2 +1,0 @@
-pe/edu/upc/config/ConfigServiceApplication.java
- pe.edu.upc.config.ConfigServiceApplication
